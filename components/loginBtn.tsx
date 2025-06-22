@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -42,16 +43,18 @@ export function LoginButton({ onDialogOpen }: LoginButtonProps) {
             }
         } catch (err) {
             console.error("Google login error:", err);
+            setError('An error occurred during Google sign-in.');
         }
     }
     const handleCredentialsLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
+
         const result = await signIn('credentials', {
             redirect: false,
             email,
             password,
         })
-
         if (result?.error) {
             setError('Invalid email or password.')
         } else {
@@ -60,9 +63,12 @@ export function LoginButton({ onDialogOpen }: LoginButtonProps) {
     }
 
     const handleOpen = () => {
+        setError('');
+        setEmail('');
+        setPassword('');
         if (onDialogOpen) {
             onDialogOpen();
-            setTimeout(() => setOpen(true), 200); // Wait for menu to close
+            // setTimeout(() => setOpen(true), 200); // Wait for menu to close
         } else {
             setOpen(true);
         }
@@ -73,10 +79,11 @@ export function LoginButton({ onDialogOpen }: LoginButtonProps) {
             <form>
                 <DialogTrigger asChild>
                     <Button
-                        className="hover:-translate-y-0.5 transition duration-200 inline-block text-center hover:cursor-pointer bg-primary-orange rounded-full"
+                        className="
+                        pb-6 btn-outline-orange text-white hover:-translate-y-0.5 transition duration-200 text-md inline-block hover:cursor-pointer"
                         onClick={handleOpen}
                     >
-                        Log in
+                        Log In
                     </Button>
                 </DialogTrigger>
                 <DialogContent className=" bg-[#FFF3EF] sm:max-w-[425px]">
@@ -96,14 +103,35 @@ export function LoginButton({ onDialogOpen }: LoginButtonProps) {
                     <div className="grid gap-4">
                         <div className="grid gap-3">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" placeholder="pedro.duarte@example.com" />
+                            <Input type="email"
+                                value={email}
+                                onChange={e => {
+                                    setEmail(e.target.value);
+                                    setError(''); // Clear error on input
+                                }}
+                                placeholder="youremail@email.com"
+                                required
+                            />
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" name="password" type="password" placeholder="••••••••" />
+                            <Input type="password"
+                                value={password}
+                                onChange={e => {
+                                    setPassword(e.target.value);
+                                    setError(''); // Clear error on input
+                                }}
+                                placeholder="••••••••"
+                                required
+                            />
                         </div>
                     </div>
                     <DialogFooter >
+                        {error && (
+                            <div className="bg-red-800 text-red-200 px-4 py-2 rounded-md text-sm">
+                                {error}
+                            </div>
+                        )}
                         {/* <DialogClose asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogClose> */}

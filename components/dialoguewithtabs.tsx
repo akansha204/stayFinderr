@@ -1,3 +1,4 @@
+"use client";
 import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -19,7 +20,8 @@ export function DialogWithTabs({ triggerLabel = "Open", tabs, onDialogOpen }: Di
         <Dialog>
             <DialogTrigger asChild>
                 <button
-                    className=" rounded-4xl px-2 p-1 btn-outline-orange text-white hover:-translate-y-0.5 transition duration-200 inline-block text-center hover:cursor-pointer"
+                    className=" 
+                    hover:-translate-y-0.5 transition duration-200 inline-block text-center hover:cursor-pointer bg-primary-orange rounded-sm p-2 text-white font-bold  "
                     onClick={onDialogOpen}
                 >
                     {triggerLabel}

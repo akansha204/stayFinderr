@@ -20,7 +20,10 @@ import Link from "next/link";
 import Featured from "./featured";
 import Services from "./services";
 import Footer from "./footer";
+import { useSession } from "next-auth/react";
+import AvatarInNav from "./AvatarInNav";
 export default function FNavbar() {
+    const { data: session } = useSession();
     const navItems = [
         {
             name: "Home",
@@ -32,11 +35,12 @@ export default function FNavbar() {
         },
         {
             name: "Listing",
-            link: "#listing",
+            link: "/listing",
         },
     ];
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isGetStartedOpen, setIsGetStartedOpen] = useState(false);
 
     return (
         <>
@@ -45,33 +49,48 @@ export default function FNavbar() {
                     {/* Desktop Navigation */}
                     <NavBody>
                         <NavbarLogo />
-                        <NavItems items={navItems} className="font-outfit-thin hover:text-primary-orange" />
+                        <NavItems items={navItems} className="font-outfit-thin hover:text-primary-orange text-xl md:text-2xl" />
                         <div className="flex items-center gap-4">
-                            {/* <NavbarButton className="bg-primary-orange text-white rounded-4xl">Login</NavbarButton> */}
-                            <LoginButton />
-                            {/* <NavbarButton className="btn-outline-orange text-white">
-                            </NavbarButton> */}
-                            {/* <DialogWithTabs triggerLabel="Sign Up" tabs={tabs} /> */}
-                            <GetStartedButton />
+                            {session ? (
+                                // User is logged in: show avatar
+                                <div className="mr-8">
+                                    <AvatarInNav />
+
+                                </div>
+                            ) : (
+                                // User is NOT logged in: show login and get started
+                                <div className="flex ">
+                                    <LoginButton />
+                                    <GetStartedButton />
+                                </div>
+                            )}
 
                         </div>
                     </NavBody>
 
                     {/* Mobile Navigation */}
-                    {/* <MobileNav> */}
-                    {/* <MobileNavHeader>
+                    <MobileNav>
+                        <MobileNavHeader>
                             <NavbarLogo />
+                            {session ? (
+                                // User is logged in: show avatar
+                                <AvatarInNav />
+                            ) : (
+                                // User is NOT logged in: show login and get started
+                                <LoginButton />
+                            )}
+
                             <MobileNavToggle
                                 isOpen={isMobileMenuOpen}
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             />
-                        </MobileNavHeader> */}
+                        </MobileNavHeader>
 
-                    {/* <MobileNavMenu
+                        <MobileNavMenu
                             isOpen={isMobileMenuOpen}
                             onClose={() => setIsMobileMenuOpen(false)}
-                        > */}
-                    {/* {navItems.map((item, idx) => (
+                        >
+                            {navItems.map((item, idx) => (
                                 <Link
                                     key={`mobile-link-${idx}`}
                                     href={item.link}
@@ -80,30 +99,22 @@ export default function FNavbar() {
                                 >
                                     <span className="block">{item.name}</span>
                                 </Link>
-                            ))} */}
-                    {/* <div className="flex w-full flex-col gap-4"> */}
-                    {/* <NavbarButton
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    variant="primary"
-                                    className="w-full"
-                                >
-                                    Login
-                                </NavbarButton> */}
-                    {/* <LoginButton onDialogOpen={() => setIsMobileMenuOpen(false)} />
-                    <GetStartedButton onDialogOpen={() => setIsMobileMenuOpen(false)} /> */}
-
-                    {/* <NavbarButton
-                                   onClick={() => setIsMobileMenuOpen(false)}
-                                    variant="primary"
-                                    className="w-full"
+                            ))}
+                            <div className="flex w-full flex-col gap-4">
+                                {/* Button to open dialog, does not unmount dialog */}
+                                {/* <button
+                                    className=" rounded-4xl px-2 p-1 btn-outline-orange text-white hover:-translate-y-0.5 transition duration-200 inline-block text-center hover:cursor-pointer"
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        setTimeout(() => setIsGetStartedOpen(true), 200);
+                                    }}
                                 >
                                     Get Started
-                                </NavbarButton>  */}
-                    {/* </div> */}
-                    {/* </MobileNavMenu> */}
-                    {/* </MobileNav> */}
+                                </button> */}
+                            </div>
+                        </MobileNavMenu>
+                    </MobileNav>
                 </Navbar>
-                {/* <DummyContent /> */}
                 <Hero />
                 <Featured />
                 <Services />

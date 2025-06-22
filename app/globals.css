@@ -147,9 +147,8 @@ html, body {
 }
 
 .btn-outline-orange {
-  border: 2px solid #E3572B;
+  /* border: 2px solid #E3572B; */
   color: #E3572B;
-  border-radius: 20px;
   background: transparent;
   /* transition: background 0.2s, color 0.2s; */
 }

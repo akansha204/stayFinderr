@@ -104,6 +104,7 @@ export default function SignInPage() {
                     />
 
                     <button
+                        onClick={handleCredentialsLogin}
                         type="submit"
                         disabled={!email || !password}
                         className={`w-full mt-4 py-2 rounded-md font-medium ${email && password

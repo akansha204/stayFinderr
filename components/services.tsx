@@ -1,3 +1,4 @@
+"use client";
 import { Building2, Home, FileText, BadgePercent, Wallet, Gem } from "lucide-react";
 
 const services = [

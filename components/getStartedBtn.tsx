@@ -1,3 +1,4 @@
+"use client";
 import { DialogWithTabs } from "./dialoguewithtabs";
 import SignUpPage from "@/app/register/page";
 // Add prop type

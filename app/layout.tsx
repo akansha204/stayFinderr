@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Playfair_Display, Outfit } from 'next/font/google';
+import { SessionProvider } from "next-auth/react";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
 
 const geistSans = Geist({
@@ -42,7 +44,9 @@ export default function RootLayout({
       <body
         className={`${playfairDisplay.variable} ${outfit.variable} antialiased`}
       >
-        {children}
+        <SessionProviderWrapper>
+          {children}
+        </SessionProviderWrapper>
       </body>
     </html>
   );

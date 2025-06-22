@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -8,6 +9,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import PeopleSelector from "@/components/PeopleSelector";
+import { LoginButton } from "./loginBtn";
+import GetStartedButton from "./getStartedBtn";
 
 export default function Hero() {
     return (
@@ -103,6 +106,10 @@ export default function Hero() {
                                 </svg>
                             </button>
                         </div>
+                    </div>
+                    <div className="flex justify-start flex-col gap-1 w-full md:hidden">
+                        <h2 className="font-outfit-thin text-white text-2xl">Start listing your properties </h2>
+                        <GetStartedButton />
                     </div>
                 </div>
             </div>
