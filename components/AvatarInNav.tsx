@@ -11,7 +11,6 @@ import {
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 
-
 export default function AvatarInNav() {
     const { data: session } = useSession();
 
@@ -27,8 +26,18 @@ export default function AvatarInNav() {
                 <DropdownMenuContent>
                     <DropdownMenuLabel>Hello {session?.user?.name}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem >Dashboard</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => signOut()}>Log out</DropdownMenuItem>
+                    {session?.user?.role === 'HOST' ? (
+                        <DropdownMenuItem>
+                            <Link href="/hostDashboard">Dashboard</Link>
+                        </DropdownMenuItem>
+                    ) : (
+                        <DropdownMenuItem>
+                            <Link href="/bookings">Listing</Link>
+                        </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={() => signOut({
+                        callbackUrl: "/",
+                    })}>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </>

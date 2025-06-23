@@ -3,56 +3,68 @@
 // import { signIn, useSession } from 'next-auth/react'
 import { useState } from 'react'
 import { FcGoogle } from 'react-icons/fc'// Google icon
-import axios from 'axios'
-import { useRouter } from 'next/navigation'
-import type { AxiosResponse } from 'axios';
-import Link from 'next/link'
 import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
+type SignUpPageProps = {
+    role?: string;
+    onSignUpSuccess?: () => void;
+};
 
-export default function SignUpPage() {
-
+export default function SignUpPage({ role: initialRole = 'GUEST', onSignUpSuccess }: SignUpPageProps) {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [phone, setPhone] = useState('') // <-- Add phone state
     const [error, setError] = useState('')
-    const [role, setRole] = useState('GUEST') // Default role
+    const [role, setRole] = useState(initialRole)
     const router = useRouter();
+
+    const handleSuccess = () => {
+        if (onSignUpSuccess) {
+            onSignUpSuccess();
+        }
+        // Small delay to ensure the dialog closes before navigation
+        setTimeout(() => {
+            router.push('/');
+        }, 100);
+    };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const res: AxiosResponse = await axios.post('/api/signup-route', {
-                name,
+            const result = await signIn('credentials', {
                 email,
                 password,
-            })
-            if (res.status === 201) {
-                router.push('/')
+                name,
+                role,
+                ...(role === 'HOST' && { phone }), // Pass phone if host
+                action: 'signup',
+                redirect: false,
+                callbackUrl: '/'
+            });
+
+            if (result?.ok) {
+                handleSuccess();
             } else {
-                setError('Something went wrong. Please try again.')
+                // Handle specific error messages from NextAuth
+                setError(result?.error || 'Something went wrong during signup.');
             }
-        } catch (e) {
-            if (axios.isAxiosError(error) && error.response?.status === 400) {
-                // Handle 400 Bad Request (email already exists)
-                setError("Email already exist");
-            } else {
-                // Handle other errors
-                setError('Something went wrong.');
-            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            setError('Something went wrong during signup.');
         }
     }
-
 
     const handleGoogleLogin = async () => {
         try {
             const result = await signIn("google", {
                 redirect: false,
-                callbackUrl: "/",
+                callbackUrl: `/?role=${role}`,
             });
 
             if (result?.ok && result.url) {
-                router.push(result.url);
+                handleSuccess();
             } else {
                 console.error("Google sign-in failed or was cancelled", result);
             }
@@ -68,13 +80,15 @@ export default function SignUpPage() {
                 <p className="text-sm font-outfit-regular text-gray-400">Connect to StayFinder with:</p>
 
                 <div className="space-y-2">
-                    <button
-                        onClick={handleGoogleLogin}
-                        className="w-full flex items-center justify-center gap-2 bg-orange-900 text-white rounded-md py-2 font-medium cursor-pointer"
-                    >
-                        <FcGoogle className="w-6 h-6" />
-                        Google
-                    </button>
+                    {role !== 'HOST' && ( // Hide Google button for host
+                        <button
+                            onClick={handleGoogleLogin}
+                            className="w-full flex items-center justify-center gap-2 bg-orange-900 text-white rounded-md py-2 font-medium cursor-pointer"
+                        >
+                            <FcGoogle className="w-6 h-6" />
+                            Google
+                        </button>
+                    )}
 
                     <hr className="border-gray-700" />
 
@@ -86,6 +100,7 @@ export default function SignUpPage() {
                             onChange={(e) => setName(e.target.value)}
                             className="w-full px-3 py-2 rounded-md bg-orange-200 placeholder-gray-500"
                             placeholder="Enter your name"
+                            required
                         />
 
                         <label className=" font-outfit-medium text-black block text-sm">Email</label>
@@ -95,7 +110,22 @@ export default function SignUpPage() {
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-3 py-2 rounded-md bg-orange-200 placeholder-gray-500"
                             placeholder="youremail@email.com"
+                            required
                         />
+
+                        {role === 'HOST' && ( // Show phone field for host
+                            <>
+                                <label className="font-outfit-medium text-black block text-sm">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    className="w-full px-3 py-2 rounded-md bg-orange-200 placeholder-gray-500"
+                                    placeholder="Enter your phone number"
+                                    required
+                                />
+                            </>
+                        )}
 
                         <label className=" font-outfit-medium text-black block text-sm">Password</label>
                         <input
@@ -104,18 +134,15 @@ export default function SignUpPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full px-3 py-2 rounded-md bg-orange-200 placeholder-gray-500"
                             placeholder="Enter a unique password"
+                            required
                         />
 
                         {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                        {/* <select name="role" value={role} onChange={e => setRole(e.target.value)}>
-                            <option value="GUEST">Guest</option>
-                            <option value="HOST">Host</option>
-                        </select> */}
                         <button
                             type="submit"
-                            disabled={!email || !password}
-                            className={`w-full mt-4 py-2 rounded-md font-medium text-white ${email && password
+                            disabled={!email || !password || !name || (role === 'HOST' && !phone)}
+                            className={`w-full mt-4 py-2 rounded-md font-medium text-white ${email && password && name && (role !== 'HOST' || phone)
                                 ? 'bg-primary-orange hover:cursor-pointer'
                                 : 'bg-primary-orange cursor-not-allowed'
                                 }`}
@@ -123,16 +150,8 @@ export default function SignUpPage() {
                             Continue
                         </button>
                     </form>
-
-                    {/* <p className="text-sm text-center text-gray-400">
-                        Already have an account?{' '}
-                        <Link href="/login" className="text-blue-400 hover:underline">
-                            Log in
-                        </Link>
-                    </p> */}
                 </div>
             </div>
         </div>
-
     )
 }

@@ -1,9 +1,16 @@
-import FNavbar from "@/components/navbar";
+import Hero from "@/components/hero";
+import Featured from "@/components/featured";
+import Services from "@/components/services";
+import Footer from "@/components/footer";
+import HostDashboard from "./hostDashboard/page";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <>
-      <FNavbar />
+      <Hero />
+      <Featured />
+      <Services />
+      <Footer />
     </>
   );
 }

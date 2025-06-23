@@ -4,44 +4,101 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from '@/lib/prisma'
 import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from 'uuid';
+import { Role } from '@prisma/client';
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
-            // The name to display on the sign in form (e.g. "Sign in with...")
             name: "email",
             credentials: {
                 email: { label: "Email", type: "email", placeholder: "email" },
                 password: { label: "Password", type: "password" },
+                name: { label: "Name", type: "text", optional: true },
+                role: { label: "Role", type: "text", optional: true },
+                action: { label: "Action", type: "text" } // 'signin' or 'signup'
             },
             async authorize(credentials, req) {
+                console.log('AUTH: credentials', credentials);
+
                 if (!credentials?.email || !credentials?.password) {
-                    throw new Error("Email and password are required.");
+                    console.log('AUTH: missing fields');
+                    throw new Error("Email and password are required");
                 }
 
+                // Handle Signup
+                if (credentials.action === 'signup') {
+                    if (!credentials.name) {
+                        throw new Error("Name is required for signup");
+                    }
+
+                    // Check if user exists
+                    const existingUser = await prisma.user.findUnique({
+                        where: { email: credentials.email }
+                    });
+
+                    if (existingUser) {
+                        throw new Error("User already exists");
+                    }
+
+                    // Validate role
+                    const allowedRoles: Role[] = ['GUEST', 'HOST'];
+                    const finalRole: Role = allowedRoles.includes(credentials.role as Role) ? credentials.role as Role : 'GUEST';
+
+                    // Hash password
+                    const hashedPassword = await bcrypt.hash(credentials.password, 12);
+
+                    // Create new user
+                    const user = await prisma.user.create({
+                        data: {
+                            name: credentials.name,
+                            email: credentials.email,
+                            password: hashedPassword,
+                            role: finalRole,
+                            accounts: {
+                                create: {
+                                    type: 'credentials',
+                                    provider: 'email',
+                                    providerAccountId: uuidv4(),
+                                }
+                            }
+                        },
+                    });
+
+                    return {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        role: user.role,
+                    };
+                }
+
+                // Handle Sign In
                 const user = await prisma.user.findUnique({
                     where: {
                         email: credentials.email
                     },
                 });
 
+                console.log('AUTH: found user', user);
+
                 if (!user || !user.password) {
-                    // User doesn't exist or signed up using OAuth (Google), so has no password
-                    throw new Error("Invalid credentials.");
+                    console.log('AUTH: user not found or no password');
+                    throw new Error("Invalid credentials");
                 }
 
-                // Step 2: Compare the provided password with the hashed one
                 const isPasswordValid = await bcrypt.compare(
                     credentials.password,
                     user.password
                 );
 
+                console.log('AUTH: password valid?', isPasswordValid);
+
                 if (!isPasswordValid) {
-                    throw new Error("Invalid credentials.");
+                    throw new Error("Invalid credentials");
                 }
 
-                // Step 3: Return the user object (NextAuth attaches it to the session)
                 return {
                     id: user.id,
                     name: user.name,
@@ -60,46 +117,54 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
-    pages: {
-        signIn: '/login',
-    },
     callbacks: {
+        async signIn({ user, account, profile }) {
+            if (account?.provider === 'google') {
+                let requestedRole: Role = 'GUEST';
+                try {
+                    if (account?.callbackUrl && typeof account.callbackUrl === 'string') {
+                        const url = new URL(account.callbackUrl, process.env.NEXTAUTH_URL || 'http://localhost:3000');
+                        const paramRole = url.searchParams.get('role');
+                        if (paramRole === 'HOST' || paramRole === 'GUEST') {
+                            requestedRole = paramRole as Role;
+                        }
+                    }
+                } catch (e) { /* fallback to GUEST */ }
+            }
+            return true;
+        },
         async jwt({ token, user }) {
             if (user) {
-                const existingUser = await prisma.user.findUnique({
-                    where: { id: user.id },
-                });
-
-                if (existingUser) {
-                    token.role = existingUser.role;
-                    token.id = existingUser.id;
-                } else {
-                    const updated = await prisma.user.update({
-                        where: { id: user.id },
-                        data: { role: 'GUEST' },
+                // Use type guard to check for id and role
+                const u = user as any;
+                if (u.id && u.role) {
+                    token.id = u.id;
+                    token.role = u.role;
+                } else if (u.email) {
+                    const dbUser = await prisma.user.findUnique({
+                        where: { email: u.email },
                     });
-                    token.role = updated.role;
-                    token.id = updated.id;
+                    if (dbUser) {
+                        token.id = dbUser.id;
+                        token.role = dbUser.role;
+                    }
                 }
             }
-
             return token;
         },
-
-        async session({ session, token }: { session: any, token: any }) {
-            if (session.user) {
-                session.user.id = token.id as string;
-                session.user.role = token.role as string;
+        async session({ session, token }) {
+            const s = session as any;
+            if (s.user) {
+                if (token.id) s.user.id = token.id as string;
+                if (token.role) s.user.role = token.role as Role;
             }
             return session;
         },
-    }
-    ,
+    },
     secret: process.env.NEXTAUTH_SECRET!,
-
 }
+
 const handler = NextAuth(authOptions);
 
-export const GET = handler;
-export const POST = handler;
+export { handler as GET, handler as POST };
 
