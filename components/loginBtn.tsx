@@ -29,6 +29,7 @@ export function LoginButton({ onDialogOpen }: LoginButtonProps) {
     const [error, setError] = useState('')
     const [open, setOpen] = useState(false);
 
+
     const handleGoogleLogin = async () => {
         try {
             const result = await signIn("google", {

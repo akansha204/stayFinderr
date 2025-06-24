@@ -106,9 +106,7 @@ export default function FNavbar() {
                         </MobileNavMenu>
                     </MobileNav>
                 </Navbar>
-                {/* <Hero />
-                <Featured />
-                <Services /> */}
+
 
 
             </div>

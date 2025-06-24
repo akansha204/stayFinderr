@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${playfairDisplay.variable} ${outfit.variable} antialiased`}
+        className={`${playfairDisplay.variable} ${outfit.variable} antialiased overflow-x-hidden`}
       >
         <SessionProviderWrapper>
 

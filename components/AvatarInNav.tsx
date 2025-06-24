@@ -32,7 +32,7 @@ export default function AvatarInNav() {
                         </DropdownMenuItem>
                     ) : (
                         <DropdownMenuItem>
-                            <Link href="/bookings">Listing</Link>
+                            <Link href="/bookings">Bookings</Link>
                         </DropdownMenuItem>
                     )}
                     <DropdownMenuItem onClick={() => signOut({

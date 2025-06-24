@@ -14,7 +14,7 @@ import GetStartedButton from "./getStartedBtn";
 
 export default function Hero() {
     return (
-        <section className="flex justify-center items-center py-8 mt-8 bg-[#FFF8F2]">
+        <section className="flex justify-center items-center py-8 mt-15 bg-[#FFF8F2]">
             <div className="relative w-[90vw] max-w-5xl rounded-3xl overflow-hidden shadow-xl bg-black/70">
                 {/* Background Image */}
                 <Image
