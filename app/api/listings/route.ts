@@ -17,7 +17,17 @@ export async function GET() {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { title, description, location, pricePerNight, images, hostId } = body;
+        const {
+            title,
+            description,
+            location,
+            pricePerNight,
+            images,
+            amenities,
+            houseRules,
+            availableDates,
+            hostId
+        } = body;
 
         // Optional: basic validation
         if (!title || !description || !location || !pricePerNight || !images?.length || !hostId) {
@@ -30,8 +40,11 @@ export async function POST(req: NextRequest) {
                 description,
                 location,
                 pricePerNight: parseFloat(pricePerNight),
-                images, // array of Cloudinary URLs (string[])
-                hostId,
+                images,
+                amenities,
+                houseRules,
+                availableDates: availableDates.map((d: string) => new Date(d)), // Convert string to Date
+                hostId
             },
         });
 

@@ -5,8 +5,16 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { Calendar } from "@/components/ui/calendar"
+import type { DateRange } from "react-day-picker";
+import { X } from "lucide-react";
+import axios from "axios";
 // Placeholder for calendar, replace with shadcn/ui calendar if available
 
+declare global {
+    interface Window {
+        cloudinary?: any;
+    }
+}
 
 const amenitiesList = [
     "Wifi",
@@ -27,7 +35,8 @@ export default function CreateListingForm() {
         houseRules: "",
         availability: [] as Date[],
     });
-    const [date, setDate] = useState<Date | undefined>(new Date())
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+    const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
 
 
     useEffect(() => {
@@ -52,9 +61,38 @@ export default function CreateListingForm() {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // POST to API here
+        // Update form.availability from dateRange if needed
+        let availability = form.availability;
+        if (dateRange && dateRange.from && dateRange.to) {
+            // Fill all dates in the range
+            const dates: Date[] = [];
+            let current = new Date(dateRange.from);
+            while (current <= dateRange.to) {
+                dates.push(new Date(current));
+                current.setDate(current.getDate() + 1);
+            }
+            availability = dates;
+        }
+        try {
+            const res = await axios.post("/api/listings", {
+                title: form.title,
+                description: form.description,
+                location: form.location,
+                pricePerNight: parseFloat(form.price),
+                images: form.images, // array of Cloudinary image URLs
+                amenities: form.amenities, // array of strings
+                houseRules: form.houseRules,
+                availability, // array of Date
+                // TODO: Add hostId from session or props if needed
+            });
+
+            console.log("Listing created:", res.data);
+            // Optionally, show a success message or reset form here
+        } catch (err: any) {
+            console.error("Failed to submit listing:", err.response?.data?.message || err.message);
+        }
     };
 
     const openUploadWidget = () => {
@@ -83,21 +121,42 @@ export default function CreateListingForm() {
         }
     };
 
-    // Placeholder calendar (replace with shadcn/ui calendar if available)
-    const CalendarPlaceholder = () => (
-        <div className="border border-gray-200 rounded-lg p-6 min-h-[220px] bg-gray-50 text-center text-gray-400">
-            <div className="font-medium mb-2">Availability Calendar</div>
-            <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-lg border"
-            />
-        </div>
-    );
+    const handleRemoveImage = (idx: number) => {
+        setForm((prev) => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== idx),
+        }));
+    };
+
+    // Render two side-by-side calendars for range selection
+    const DoubleCalendar = () => {
+        // Calculate the next month for the second calendar
+        const nextMonth = new Date(calendarMonth);
+        nextMonth.setMonth(calendarMonth.getMonth() + 1);
+        return (
+            <div className="flex gap-8 justify-center">
+                <Calendar
+                    mode="range"
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    month={calendarMonth}
+                    onMonthChange={setCalendarMonth}
+                    className="rounded-lg border bg-white shadow-sm"
+                />
+                <Calendar
+                    mode="range"
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    month={nextMonth}
+                    onMonthChange={setCalendarMonth}
+                    className="rounded-lg border bg-white shadow-sm"
+                />
+            </div>
+        );
+    };
 
     return (
-        <div className="max-w-3xl mx-auto mt-20 p-4 sm:p-6 md:p-10 border border-gray-200 rounded-xl bg-[#FFF3EF]">
+        <div className="max-w-5xl mx-auto mt-20 p-4 sm:p-6 md:p-10 border border-gray-200 rounded-xl bg-[#FFF3EF]">
             <h1 className="text-2xl md:text-3xl font-semibold mb-6">
                 Create a new listing
             </h1>
@@ -142,7 +201,7 @@ export default function CreateListingForm() {
                         min={0}
                     />
                     <label className="font-medium mt-4">Images</label>
-                    <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center bg-gray-50 mb-2">
+                    <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center bg-gray-50 mb-2 mr-4">
                         <div className="font-semibold mb-2">Upload Images</div>
                         <div className="text-xs text-gray-500 mb-3">Drag and drop or click to upload images of your listing</div>
                         <Button
@@ -154,12 +213,21 @@ export default function CreateListingForm() {
                         </Button>
                         <div className="flex flex-wrap gap-2 mt-4 justify-center">
                             {form.images.map((url, idx) => (
-                                <img
-                                    key={idx}
-                                    src={url}
-                                    alt={`Uploaded ${idx}`}
-                                    className="w-20 h-20 object-cover rounded-md"
-                                />
+                                <div key={idx} className="relative w-20 h-20">
+                                    <img
+                                        src={url}
+                                        alt={`Uploaded ${idx}`}
+                                        className="w-20 h-20 object-cover rounded-md"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveImage(idx)}
+                                        className="absolute -top-2 -right-2 bg-white rounded-full shadow p-0.5 hover:bg-red-100"
+                                        aria-label="Remove image"
+                                    >
+                                        <X size={16} className="text-gray-600 hover:text-red-500" />
+                                    </button>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -188,7 +256,7 @@ export default function CreateListingForm() {
                         rows={3}
                     />
                     <div className="mt-6">
-                        <CalendarPlaceholder />
+                        <DoubleCalendar />
                     </div>
                 </div>
                 <div className="md:col-span-2 flex justify-end mt-8">
