@@ -82,8 +82,12 @@ model Listing {
   amenities      String[] // ["Wifi", "Kitchen", ...]
   houseRules     String?
   availableDates DateTime[] // ["2025-07-10", "2025-07-11"]
+  beds           Int        @default(1)
+  adults         Int        @default(1) // Maximum adults allowed
+  children       Int        @default(0) // Maximum children allowed
+  rooms          Int        @default(1) // Number of rooms/bedrooms
   hostId         String
-  host           User       @relation(fields: [hostId], references: [id])
+  host           User       @relation(fields: [hostId], references: [id], onDelete: Cascade)
   bookings       Booking[]
   createdAt      DateTime   @default(now())
 }

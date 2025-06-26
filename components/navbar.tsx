@@ -5,21 +5,15 @@ import {
     NavItems,
     MobileNav,
     NavbarLogo,
-    NavbarButton,
     MobileNavHeader,
     MobileNavToggle,
     MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
 import { useState } from "react";
-import Hero from "./hero";
-import { DialogWithTabs } from "./dialoguewithtabs";
-import ExpandButton from "./getStartedBtn";
 import GetStartedButton from "./getStartedBtn";
 import { LoginButton } from "./loginBtn";
 import Link from "next/link";
-import Featured from "./featured";
-import Services from "./services";
-import Footer from "./footer";
+
 import { useSession } from "next-auth/react";
 import AvatarInNav from "./AvatarInNav";
 export default function FNavbar() {
@@ -28,7 +22,7 @@ export default function FNavbar() {
     const navItems = [
         {
             name: "Home",
-            link: "#home",
+            link: "/",
         },
         {
             name: "About Us",
@@ -106,9 +100,6 @@ export default function FNavbar() {
                         </MobileNavMenu>
                     </MobileNav>
                 </Navbar>
-
-
-
             </div>
         </>
     );

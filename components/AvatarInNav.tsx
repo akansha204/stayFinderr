@@ -9,6 +9,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSession, signIn, signOut } from "next-auth/react";
+import { User } from "lucide-react";
 import Link from "next/link";
 
 export default function AvatarInNav() {
@@ -19,8 +20,10 @@ export default function AvatarInNav() {
             <DropdownMenu>
                 <DropdownMenuTrigger>
                     <Avatar>
-                        <AvatarImage src={session?.user?.image || "/default-avatar.png"} />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarImage src={session?.user?.image || ""} />
+                        <AvatarFallback>
+                            <User className="h-6 w-6" />
+                        </AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
             images,
             amenities,
             houseRules,
-            availableDates,
+            availability, // Changed from availableDates to match frontend
             hostId
         } = body;
 
@@ -43,7 +43,9 @@ export async function POST(req: NextRequest) {
                 images,
                 amenities,
                 houseRules,
-                availableDates: availableDates.map((d: string) => new Date(d)), // Convert string to Date
+                availableDates: availability?.map((d: string | Date) =>
+                    typeof d === 'string' ? new Date(d) : d
+                ) || [], // Handle both string and Date inputs, default to empty array
                 hostId
             },
         });
