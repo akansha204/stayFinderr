@@ -33,6 +33,10 @@ export default function CreateListingForm() {
         description: "",
         location: "",
         price: "",
+        adults: "1",
+        children: "0",
+        beds: "1",
+        rooms: "1",
         images: [] as string[],
         amenities: [] as string[],
         houseRules: "",
@@ -117,6 +121,10 @@ export default function CreateListingForm() {
             errors.push("At least one property image is required");
         }
 
+        if (form.amenities.length === 0) {
+            errors.push("At least one amenity is required");
+        }
+
         if (form.availability.length === 0 && (!dateRange || !dateRange.from || !dateRange.to)) {
             errors.push("Available dates are required");
         }
@@ -157,6 +165,10 @@ export default function CreateListingForm() {
                 amenities: form.amenities, // array of strings
                 houseRules: form.houseRules,
                 availability, // array of Date
+                adults: parseInt(form.adults),
+                children: parseInt(form.children),
+                beds: parseInt(form.beds),
+                rooms: parseInt(form.rooms),
                 hostId: (session?.user as any)?.id || session?.user?.email
             });
 
@@ -169,6 +181,10 @@ export default function CreateListingForm() {
                 description: "",
                 location: "",
                 price: "",
+                adults: "1",
+                children: "0",
+                beds: "1",
+                rooms: "1",
                 images: [],
                 amenities: [],
                 houseRules: "",
@@ -295,6 +311,65 @@ export default function CreateListingForm() {
                         min={0}
                         className="text-sm sm:text-base"
                     />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 sm:mt-4">
+                        <div>
+                            <label className="font-medium text-sm sm:text-base">Adults</label>
+                            <Input
+                                name="adults"
+                                type="number"
+                                placeholder="1"
+                                value={form.adults}
+                                onChange={handleChange}
+                                required
+                                min={1}
+                                className="text-sm sm:text-base mt-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="font-medium text-sm sm:text-base">Children</label>
+                            <Input
+                                name="children"
+                                type="number"
+                                placeholder="0"
+                                value={form.children}
+                                onChange={handleChange}
+                                required
+                                min={0}
+                                className="text-sm sm:text-base mt-2"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 sm:mt-4">
+                        <div>
+                            <label className="font-medium text-sm sm:text-base">Beds</label>
+                            <Input
+                                name="beds"
+                                type="number"
+                                placeholder="1"
+                                value={form.beds}
+                                onChange={handleChange}
+                                required
+                                min={1}
+                                className="text-sm sm:text-base mt-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="font-medium text-sm sm:text-base">Rooms</label>
+                            <Input
+                                name="rooms"
+                                type="number"
+                                placeholder="1"
+                                value={form.rooms}
+                                onChange={handleChange}
+                                required
+                                min={1}
+                                className="text-sm sm:text-base mt-2"
+                            />
+                        </div>
+                    </div>
+
                     <label className="font-medium mt-2 sm:mt-4 text-sm sm:text-base">Images</label>
                     <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 sm:p-6 text-center bg-gray-50 mb-2">
                         <div className="font-semibold mb-2 text-sm sm:text-base">Upload Images</div>

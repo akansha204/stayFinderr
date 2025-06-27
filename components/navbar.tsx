@@ -43,7 +43,7 @@ export default function FNavbar() {
                     {/* Desktop Navigation */}
                     <NavBody>
                         <NavbarLogo />
-                        <NavItems items={navItems} className="font-outfit-thin hover:text-primary-orange text-xl md:text-2xl" />
+                        <NavItems items={navItems} className="font-outfit-thin hover:text-primary-orange text-md md:text-md" />
                         <div className="flex items-center gap-4">
                             {session ? (
                                 // User is logged in: show avatar

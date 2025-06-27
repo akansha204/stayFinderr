@@ -6,6 +6,10 @@ interface PropertyCardProps {
     price: number;
     title: string;
     location: string;
+    beds: number;
+    rooms: number;
+    adults: number;
+    children: number;
     image?: string;
     currency?: string;
 }
@@ -14,13 +18,18 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
     price,
     title,
     location,
+    beds,
+    rooms,
+    adults,
+    children,
     image = '/img-1.jpg',
     currency = 'Rs.'
 }) => {
+    const totalGuests = adults + children;
     return (
-        <div className="relative w-full max-w-sm mx-auto bg-white rounded-2xl overflow-hidden shadow-lg group cursor-pointer transition-transform duration-300 hover:scale-105">
+        <div className="relative w-full max-w-lg mx-auto bg-white rounded-2xl overflow-hidden shadow-lg group cursor-pointer transition-transform duration-300 hover:scale-105">
             {/* Image Section */}
-            <div className="relative h-64 w-full">
+            <div className="relative h-80 w-full">
                 <Image
                     src={image}
                     alt={title}
@@ -30,8 +39,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
                 />
             </div>
 
-            {/* Content Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6">
+            {/* Content Section - Not Overlay */}
+            <div className="bg-white p-6">
                 {/* Price and Arrow Button */}
                 <div className="flex items-center justify-between mb-3">
                     <div className="text-orange-500 text-xl font-bold">
@@ -48,9 +57,27 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
                 </h3>
 
                 {/* Location */}
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 text-sm mb-4">
                     {location}
                 </p>
+
+                {/* Property Details */}
+                <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center space-x-6">
+                        <div className="text-center">
+                            <div className="text-gray-900 font-semibold">{beds}</div>
+                            <div className="text-gray-500">Beds</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-gray-900 font-semibold">{rooms}</div>
+                            <div className="text-gray-500">Rooms</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-gray-900 font-semibold">{totalGuests}</div>
+                            <div className="text-gray-500">Guest</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

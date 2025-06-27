@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
     Select,
@@ -8,11 +9,26 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { Calendar } from "@/components/ui/calendar";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import PeopleSelector from "@/components/PeopleSelector";
 import { LoginButton } from "./loginBtn";
 import GetStartedButton from "./getStartedBtn";
 
 export default function Hero() {
+    const [checkInDate, setCheckInDate] = useState<Date>();
+    const [checkOutDate, setCheckOutDate] = useState<Date>();
+    const [location, setLocation] = useState<string>("");
+    const [adults, setAdults] = useState<number>(1);
+    const [children, setChildren] = useState<number>(0);
+    const [rooms, setRooms] = useState<number>(1);
+
     return (
         <section className="flex justify-center items-center py-8 mt-15 bg-[#FFF8F2]">
             <div className="relative w-[90vw] max-w-5xl rounded-3xl overflow-hidden shadow-xl bg-black/70">
@@ -62,12 +78,7 @@ export default function Hero() {
                             {/* Location */}
                             <div className="flex-1 px-6 py-5 bg-transparent flex flex-col min-w-[180px]">
                                 <span className="text-white text-lg font-medium">Location</span>
-                                {/* <input
-                                    type="text"
-                                    placeholder="Search destination"
-                                    className="mt-1 bg-transparent text-white placeholder:text-neutral-300 border-none outline-none focus:ring-0"
-                                /> */}
-                                <Select>
+                                <Select value={location} onValueChange={setLocation}>
                                     <SelectTrigger className="w-[150px] mt-2 bg-transparent ">
                                         <SelectValue placeholder="India" />
                                     </SelectTrigger>
@@ -81,23 +92,54 @@ export default function Hero() {
                             {/* Check-in */}
                             <div className="flex-1 px-6 py-5 bg-transparent flex flex-col min-w-[140px] border-t md:border-t-0 md:border-l border-white/20">
                                 <span className="text-white text-lg font-medium">Check-in</span>
-                                <input
-                                    type="date"
-                                    className="mt-1 bg-transparent text-white placeholder:text-neutral-300 border-none outline-none focus:ring-0"
-                                />
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <button className="mt-1 bg-transparent text-white border-none outline-none focus:ring-0 flex items-center gap-2 text-left">
+                                            <CalendarIcon className="h-4 w-4" />
+                                            {checkInDate ? format(checkInDate, "PPP") : "Select date"}
+                                        </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={checkInDate}
+                                            onSelect={setCheckInDate}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                             {/* Check-out */}
                             <div className="flex-1 px-6 py-5 bg-transparent flex flex-col min-w-[140px] border-t md:border-t-0 md:border-l border-white/20">
                                 <span className="text-white text-lg font-medium">Check-out</span>
-                                <input
-                                    type="date"
-                                    className="mt-1 bg-transparent text-white placeholder:text-neutral-300 border-none outline-none focus:ring-0"
-                                />
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <button className="mt-1 bg-transparent text-white border-none outline-none focus:ring-0 flex items-center gap-2 text-left">
+                                            <CalendarIcon className="h-4 w-4" />
+                                            {checkOutDate ? format(checkOutDate, "PPP") : "Select date"}
+                                        </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={checkOutDate}
+                                            onSelect={setCheckOutDate}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                             {/* Peoples */}
                             <div className="flex-1 px-6 py-5 bg-transparent flex flex-col min-w-[120px] border-t md:border-t-0 md:border-l border-white/20">
                                 <span className="text-white text-lg font-medium">Peoples</span>
-                                <PeopleSelector />
+                                <PeopleSelector
+                                    adults={adults}
+                                    children={children}
+                                    rooms={rooms}
+                                    setAdults={setAdults}
+                                    setChildren={setChildren}
+                                    setRooms={setRooms}
+                                />
                             </div>
                             {/* Search Button */}
                             <button className="flex items-center justify-center bg-[#E3572B] hover:bg-orange-600 transition-colors px-8 md:px-6 py-5 text-white text-2xl md:rounded-none rounded-b-2xl md:rounded-r-2xl">

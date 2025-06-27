@@ -109,27 +109,25 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
 };
 
 export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
-  // Track selected nav item
-  const [selectedIdx, setSelectedIdx] = useState(0);
   return (
     <div
       className={cn(
-        "flex flex-1 flex-row items-center justify-center gap-0 text-5xl font-outfit-thin text-zinc-600 lg:flex lg:gap-3",
+        "flex flex-1 flex-row items-center justify-center gap-0 font-outfit-thin text-zinc-600 lg:flex lg:gap-3",
         className,
       )}
     >
       {items.map((item, idx) => (
         <Link
           onClick={e => {
-            setSelectedIdx(idx);
             if (onItemClick) onItemClick();
           }}
           className={cn(
-            "relative px-2 py-1 rounded-full transition-all duration-200",
-            idx === selectedIdx
-              ? "bg-primary-orange text-white font-normal shadow-none"
-              : "bg-transparent text-zinc-600 hover:text-primary-orange",
-            "font-outfit-thin text-xs"
+            "relative px-4 py-2 transition-all duration-300 ease-in-out",
+            "bg-transparent text-zinc-600 hover:text-primary-orange",
+            "font-outfit-thin rounded-lg",
+            "hover:bg-orange-50 hover:scale-105 hover:shadow-md",
+            "before:absolute before:bottom-0 before:left-0 before:w-0 before:h-0.5 before:bg-primary-orange before:transition-all before:duration-300",
+            "hover:before:w-full"
           )}
           key={`link-${idx}`}
           href={item.link}

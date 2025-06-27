@@ -4,11 +4,24 @@ import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { UserIcon, BedIcon } from "lucide-react";
 
-export default function PeopleSelector() {
+interface PeopleSelectorProps {
+    adults: number;
+    children: number;
+    rooms: number;
+    setAdults: (value: number) => void;
+    setChildren: (value: number) => void;
+    setRooms: (value: number) => void;
+}
+
+export default function PeopleSelector({
+    adults,
+    children,
+    rooms,
+    setAdults,
+    setChildren,
+    setRooms
+}: PeopleSelectorProps) {
     const [open, setOpen] = useState(false);
-    const [adults, setAdults] = useState(1);
-    const [children, setChildren] = useState(0);
-    const [rooms, setRooms] = useState(1);
 
     const handleOk = () => setOpen(false);
 
