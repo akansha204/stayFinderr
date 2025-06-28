@@ -26,6 +26,14 @@ export async function PUT(
     const { id } = await params;
     const data = await req.json();
 
+    // Handle field name mapping - frontend sends 'availability' but DB expects 'availableDates'
+    if (data.availability) {
+        data.availableDates = data.availability.map((d: string | Date) =>
+            typeof d === 'string' ? new Date(d) : d
+        );
+        delete data.availability; // Remove the old field name
+    }
+
     const updated = await prisma.listing.update({
         where: { id },
         data

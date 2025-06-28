@@ -241,7 +241,7 @@ export default function CreateListingForm() {
         const nextMonth = new Date(calendarMonth);
         nextMonth.setMonth(calendarMonth.getMonth() + 1);
         return (
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 justify-center items-center">
+            <div className="flex flex-col lg:flex-row  gap-4 justify-center items-center">
                 <Calendar
                     mode="range"
                     selected={dateRange}
@@ -263,15 +263,15 @@ export default function CreateListingForm() {
     };
 
     return (
-        <div className="w-full max-w-6xl mx-auto mt-15 sm:mt-12 lg:mt-20 p-3 sm:p-4 md:p-6 lg:p-10 border border-gray-200 rounded-xl bg-[#FFF3EF]">
+        <div className="w-full max-w-7xl mx-auto mt-15 sm:mt-12 lg:mt-20 p-3 sm:p-4 md:p-6 lg:p-10 border border-gray-200 rounded-xl bg-[#FFF3EF]">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 sm:mb-6 text-center sm:text-left">
                 Create a new listing
             </h1>
             <form
                 onSubmit={handleSubmit}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12"
             >
-                <div className="flex flex-col gap-4 sm:gap-5">
+                <div className="xl:col-span-1 flex flex-col gap-4 sm:gap-5">
                     <label className="font-medium text-sm sm:text-base">Listing Title</label>
                     <Input
                         name="title"
@@ -414,6 +414,14 @@ export default function CreateListingForm() {
                             ))}
                         </div>
                     </div>
+
+                    {/* Availability Calendar - placed below images */}
+                    <div className="mt-4 sm:mt-6">
+                        <label className="font-semibold mb-3 block text-sm sm:text-base">Availability</label>
+                        <div className="space-y-4">
+                            <DoubleCalendar />
+                        </div>
+                    </div>
                 </div>
                 <div className="flex flex-col gap-4 sm:gap-5">
                     <label className="font-semibold mb-2 text-sm sm:text-base">Amenities</label>
@@ -439,11 +447,8 @@ export default function CreateListingForm() {
                         rows={3}
                         className="text-sm sm:text-base resize-none"
                     />
-                    <div className="mt-4 sm:mt-6">
-                        <label className="font-semibold mb-3 block text-sm sm:text-base">Availability</label>
-                        <DoubleCalendar />
-                    </div>
                 </div>
+
                 <div className="lg:col-span-2 flex flex-col sm:flex-row justify-center sm:justify-end gap-3 sm:gap-4 mt-6 sm:mt-8">
                     <Button
                         type="submit"

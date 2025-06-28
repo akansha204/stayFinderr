@@ -80,8 +80,7 @@ export default function Hero() {
                     </div>
                     {/* Subheading */}
                     <p className="text-white text-base md:text-lg max-w-xl">
-                        Crafting urban masterpieces, we redefine cityscapes by seamlessly blending modern real estate into iconic skylines
-                    </p>
+                        Curating unforgettable stays, we transform travel into timeless experiences by seamlessly blending comfort, elegance, and local charm.                    </p>
                     {/* Search Component */}
                     <SearchComponent
                         variant="hero"

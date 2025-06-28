@@ -1,16 +1,32 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-// GET: Public - fetch all listings
-export async function GET() {
-    const listings = await prisma.listing.findMany({
-        include: {
-            host: true,
-            bookings: true,
-        },
-    });
+// GET: Public - fetch all listings or filter by hostId
+export async function GET(req: NextRequest) {
+    try {
+        const { searchParams } = new URL(req.url);
+        const hostId = searchParams.get('hostId');
 
-    return NextResponse.json(listings);
+        let whereClause = {};
+
+        // If hostId is provided, filter by hostId
+        if (hostId) {
+            whereClause = { hostId: hostId };
+        }
+
+        const listings = await prisma.listing.findMany({
+            where: whereClause,
+            include: {
+                host: true,
+                bookings: true,
+            },
+        });
+
+        return NextResponse.json(listings);
+    } catch (error) {
+        console.error("Failed to fetch listings:", error);
+        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    }
 }
 
 // POST: Authenticated host creates a new listing

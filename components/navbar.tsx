@@ -25,8 +25,8 @@ export default function FNavbar() {
             link: "/",
         },
         {
-            name: "About Us",
-            link: "/",
+            name: "Services",
+            link: "/#services",
         },
         {
             name: "Listing",

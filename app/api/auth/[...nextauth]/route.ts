@@ -56,13 +56,6 @@ export const authOptions: NextAuthOptions = {
                             email: credentials.email,
                             password: hashedPassword,
                             role: finalRole,
-                            accounts: {
-                                create: {
-                                    type: 'credentials',
-                                    provider: 'email',
-                                    providerAccountId: uuidv4(),
-                                }
-                            }
                         },
                     });
 
@@ -119,35 +112,22 @@ export const authOptions: NextAuthOptions = {
     },
     callbacks: {
         async signIn({ user, account, profile }) {
-            if (account?.provider === 'google') {
-                let requestedRole: Role = 'GUEST';
-                try {
-                    if (account?.callbackUrl && typeof account.callbackUrl === 'string') {
-                        const url = new URL(account.callbackUrl, process.env.NEXTAUTH_URL || 'http://localhost:3000');
-                        const paramRole = url.searchParams.get('role');
-                        if (paramRole === 'HOST' || paramRole === 'GUEST') {
-                            requestedRole = paramRole as Role;
-                        }
-                    }
-                } catch (e) { /* fallback to GUEST */ }
-            }
+            // Let the PrismaAdapter handle everything automatically
             return true;
         },
         async jwt({ token, user }) {
             if (user) {
-                // Use type guard to check for id and role
-                const u = user as any;
-                if (u.id && u.role) {
-                    token.id = u.id;
-                    token.role = u.role;
-                } else if (u.email) {
-                    const dbUser = await prisma.user.findUnique({
-                        where: { email: u.email },
-                    });
-                    if (dbUser) {
-                        token.id = dbUser.id;
-                        token.role = dbUser.role;
-                    }
+                // For new sign-ins, user object will have the database user info
+                token.id = user.id;
+                token.role = (user as any).role || 'GUEST';
+            } else if (token.email && !token.id) {
+                // Fallback: fetch user data if not in token yet
+                const dbUser = await prisma.user.findUnique({
+                    where: { email: token.email },
+                });
+                if (dbUser) {
+                    token.id = dbUser.id;
+                    token.role = dbUser.role;
                 }
             }
             return token;

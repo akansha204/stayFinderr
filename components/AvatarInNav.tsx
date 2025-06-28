@@ -29,13 +29,13 @@ export default function AvatarInNav() {
                 <DropdownMenuContent>
                     <DropdownMenuLabel>Hello {session?.user?.name}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {session?.user?.role === 'HOST' ? (
+                    {(session?.user as any)?.role === 'HOST' ? (
                         <DropdownMenuItem>
-                            <Link href="/hostDashboard">Dashboard</Link>
+                            <Link href="/hostDashboard" target="_blank" rel="noopener noreferrer">Host Dashboard</Link>
                         </DropdownMenuItem>
                     ) : (
                         <DropdownMenuItem>
-                            <Link href="/bookings">Bookings</Link>
+                            <Link href="/bookings" target="_blank" rel="noopener noreferrer">My Bookings</Link>
                         </DropdownMenuItem>
                     )}
                     <DropdownMenuItem onClick={() => signOut({

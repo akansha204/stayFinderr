@@ -34,7 +34,7 @@ export default function Footer() {
                     </div>
                     <nav className="flex gap-8 text-zinc-300 text-lg">
                         <Link href="/" className="hover:text-white transition">Home</Link>
-                        <Link href="/" className="hover:text-white transition">About us</Link>
+                        <Link href="/#services" className="hover:text-white transition">Services</Link>
                         <Link href="/listings" className="hover:text-white transition">Listing</Link>
                     </nav>
                 </div>

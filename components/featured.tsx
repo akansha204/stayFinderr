@@ -72,7 +72,9 @@ export default function Featured() {
                     ))
                 )}
             </div>
-            <Button onClick={() => Link.push('/listings')} className="bg-primary-orange text-white rounded-full px-8 py-3 text-lg font-semibold hover:bg-orange-600 hover:cursor-pointer shadow-md">Find a hotel!</Button>
+            <Link href="/listings">
+                <Button className="bg-primary-orange text-white rounded-full px-8 py-3 text-lg font-semibold hover:bg-orange-600 hover:cursor-pointer shadow-md">Find a hotel!</Button>
+            </Link>
         </section>
     );
 }

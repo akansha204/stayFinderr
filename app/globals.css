@@ -156,7 +156,22 @@ html, body {
   background: #E3572B;
   color: #fff;
 } */
-/* 
-[data-state="active"] {
-  background-color: #FFF4EA !important;
-} */
+
+/* Hide Next.js development buttons and overlays */
+[data-nextjs-toast],
+[data-nextjs-toast-wrapper],
+.__next-dev-overlay-wrapper__,
+#__next-build-watcher,
+nextjs-portal {
+  display: none !important;
+}
+
+/* Hide any development error overlay buttons */
+button[data-nextjs-toast] {
+  display: none !important;
+}
+
+/* Hide development mode indicators */
+[data-testid="nextjs-toast"] {
+  display: none !important;
+}

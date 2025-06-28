@@ -9,8 +9,16 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+    type CarouselApi,
+} from "@/components/ui/carousel";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronLeft, ChevronRight, MapPin, Bed, Users, Star, User } from "lucide-react";
+import { CalendarIcon, MapPin, Bed, Users, Star, User } from "lucide-react";
 
 interface DetailedListingProps {
     listingId: string;
@@ -36,12 +44,25 @@ interface ListingData {
     };
 }
 
-export default async function DetailedListing({ listingId }: DetailedListingProps) {
+export default function DetailedListing({ listingId }: DetailedListingProps) {
     const [listing, setListing] = useState<ListingData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [checkInDate, setCheckInDate] = useState<Date>();
     const [checkOutDate, setCheckOutDate] = useState<Date>();
+    const [api, setApi] = useState<CarouselApi>();
+    const [current, setCurrent] = useState(0);
+
+    useEffect(() => {
+        if (!api) {
+            return;
+        }
+
+        setCurrent(api.selectedScrollSnap());
+
+        api.on("select", () => {
+            setCurrent(api.selectedScrollSnap());
+        });
+    }, [api]);
 
     useEffect(() => {
         const fetchListing = async () => {
@@ -74,18 +95,6 @@ export default async function DetailedListing({ listingId }: DetailedListingProp
         }
     }, [listingId]);
 
-    const nextImage = () => {
-        if (listing && listing.images.length > 0) {
-            setCurrentImageIndex((prev) => (prev + 1) % listing.images.length);
-        }
-    };
-
-    const prevImage = () => {
-        if (listing && listing.images.length > 0) {
-            setCurrentImageIndex((prev) => (prev - 1 + listing.images.length) % listing.images.length);
-        }
-    };
-
     if (loading) {
         return (
             <div className="flex justify-center items-center h-96">
@@ -110,31 +119,29 @@ export default async function DetailedListing({ listingId }: DetailedListingProp
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 {/* Left Side - Image Carousel */}
                 <div className="space-y-4">
-                    {/* Main Image */}
-                    <div className="relative h-96 rounded-2xl overflow-hidden">
-                        <Image
-                            src={listing.images[currentImageIndex] || '/img-1.jpg'}
-                            alt={listing.title}
-                            fill
-                            className="object-cover"
-                        />
+                    {/* Main Carousel */}
+                    <Carousel className="w-full" setApi={setApi}>
+                        <CarouselContent>
+                            {listing.images.map((image, index) => (
+                                <CarouselItem key={index}>
+                                    <div className="relative h-[500px] w-full rounded-2xl overflow-hidden">
+                                        <Image
+                                            src={image || '/img-1.jpg'}
+                                            alt={`${listing.title} ${index + 1}`}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
                         {listing.images.length > 1 && (
                             <>
-                                <button
-                                    onClick={prevImage}
-                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all"
-                                >
-                                    <ChevronLeft className="h-6 w-6" />
-                                </button>
-                                <button
-                                    onClick={nextImage}
-                                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all"
-                                >
-                                    <ChevronRight className="h-6 w-6" />
-                                </button>
+                                <CarouselPrevious className="left-4 bg-white/80 hover:bg-white border-0 shadow-lg" />
+                                <CarouselNext className="right-4 bg-white/80 hover:bg-white border-0 shadow-lg" />
                             </>
                         )}
-                    </div>
+                    </Carousel>
 
                     {/* Thumbnail Images */}
                     {listing.images.length > 1 && (
@@ -142,9 +149,9 @@ export default async function DetailedListing({ listingId }: DetailedListingProp
                             {listing.images.slice(0, 4).map((image, index) => (
                                 <div
                                     key={index}
-                                    className={`relative h-24 rounded-lg overflow-hidden cursor-pointer ${currentImageIndex === index ? 'ring-2 ring-primary-orange' : ''
+                                    className={`relative h-24 rounded-lg overflow-hidden cursor-pointer ${current === index ? 'ring-2 ring-primary-orange' : ''
                                         }`}
-                                    onClick={() => setCurrentImageIndex(index)}
+                                    onClick={() => api?.scrollTo(index)}
                                 >
                                     <Image
                                         src={image}

@@ -36,7 +36,7 @@ const services = [
 
 export default function Services() {
     return (
-        <section className="bg-[#FFF8F2] py-16 px-4 flex flex-col items-center">
+        <section id="services" className="bg-[#FFF8F2] py-16 px-4 flex flex-col items-center">
             {/* Heading */}
             <div className="flex items-center gap-6 mb-12">
                 <span className="text-primary-orange text-3xl">✷</span>

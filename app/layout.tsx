@@ -4,7 +4,7 @@ import "./globals.css";
 import { Playfair_Display, Outfit } from 'next/font/google';
 import { SessionProvider } from "next-auth/react";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
-import FNavbar from "@/components/navbar";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
 
 
 const geistSans = Geist({
@@ -46,10 +46,7 @@ export default function RootLayout({
         className={`${playfairDisplay.variable} ${outfit.variable} antialiased overflow-x-hidden`}
       >
         <SessionProviderWrapper>
-
-          <nav>
-            <FNavbar />
-          </nav>
+          <ConditionalNavbar />
           {children}
         </SessionProviderWrapper>
 
