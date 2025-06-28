@@ -11,6 +11,7 @@ interface PeopleSelectorProps {
     setAdults: (value: number) => void;
     setChildren: (value: number) => void;
     setRooms: (value: number) => void;
+    variant?: 'hero' | 'page';
 }
 
 export default function PeopleSelector({
@@ -19,11 +20,16 @@ export default function PeopleSelector({
     rooms,
     setAdults,
     setChildren,
-    setRooms
+    setRooms,
+    variant = 'page'
 }: PeopleSelectorProps) {
     const [open, setOpen] = useState(false);
 
     const handleOk = () => setOpen(false);
+
+    // Style variants
+    const isHero = variant === 'hero';
+    const textColor = isHero ? 'text-white' : 'text-gray-700';
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -31,12 +37,12 @@ export default function PeopleSelector({
                 <button
                     className="flex items-center gap-2 px-3 py-2 rounded-xl bg-transparent min-w-0 focus:outline-none  transition shadow-sm"
                 >
-                    <span className="flex items-center gap-1 text-white text-lg font-medium">
+                    <span className={`flex items-center gap-1 ${textColor} text-lg font-medium`}>
                         <span>{adults + children}</span>
                         <UserIcon className="w-5 h-5 text-primary-orange" />
                     </span>
                     <span className="mx-1 text-gray-400">·</span>
-                    <span className="flex items-center gap-1 text-white text-lg font-medium">
+                    <span className={`flex items-center gap-1 ${textColor} text-lg font-medium`}>
                         <span>{rooms}</span>
                         <BedIcon className="w-5 h-5 text-primary-orange" />
                     </span>

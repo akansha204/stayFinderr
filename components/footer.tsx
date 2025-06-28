@@ -1,5 +1,6 @@
 "use client";
 import { Mail, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
 
 export default function Footer() {
     return (
@@ -32,9 +33,9 @@ export default function Footer() {
                         <span className="font-playfair-italic italic text-3xl">StayFinder</span>
                     </div>
                     <nav className="flex gap-8 text-zinc-300 text-lg">
-                        <a href="#" className="hover:text-white transition">Home</a>
-                        <a href="#" className="hover:text-white transition">About us</a>
-                        <a href="#" className="hover:text-white transition">Listing</a>
+                        <Link href="/" className="hover:text-white transition">Home</Link>
+                        <Link href="/" className="hover:text-white transition">About us</Link>
+                        <Link href="/listings" className="hover:text-white transition">Listing</Link>
                     </nav>
                 </div>
                 {/* Contact and Social */}

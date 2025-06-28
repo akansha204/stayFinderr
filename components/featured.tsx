@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import PropertyCard from "./PropertyCard";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface PropertyData {
     id: string;
@@ -58,6 +59,7 @@ export default function Featured() {
                     properties.map((property) => (
                         <PropertyCard
                             key={property.id}
+                            id={property.id}
                             price={property.pricePerNight}
                             title={property.title}
                             location={property.location}
@@ -70,7 +72,7 @@ export default function Featured() {
                     ))
                 )}
             </div>
-            <Button className="bg-primary-orange text-white rounded-full px-8 py-3 text-lg font-semibold hover:bg-orange-600 shadow-md">Find a hotel!</Button>
+            <Button onClick={() => Link.push('/listings')} className="bg-primary-orange text-white rounded-full px-8 py-3 text-lg font-semibold hover:bg-orange-600 hover:cursor-pointer shadow-md">Find a hotel!</Button>
         </section>
     );
 }

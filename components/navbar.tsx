@@ -18,7 +18,7 @@ import { useSession } from "next-auth/react";
 import AvatarInNav from "./AvatarInNav";
 export default function FNavbar() {
     const { data: session } = useSession();
-    console.log(session?.user?.role);
+    // console.log(session?.user?.role);
     const navItems = [
         {
             name: "Home",
@@ -26,11 +26,11 @@ export default function FNavbar() {
         },
         {
             name: "About Us",
-            link: "/services",
+            link: "/",
         },
         {
             name: "Listing",
-            link: "/listing",
+            link: "/listings",
         },
     ];
 
