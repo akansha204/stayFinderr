@@ -108,7 +108,7 @@ export default function ManageListingsTab() {
                 const response = await axios.get(`/api/listings?hostId=${userHostId}`);
                 setListings(response.data);
             } catch (error) {
-                console.error('Error fetching listings:', error);
+                // console.error('Error fetching listings:', error);
                 // Show user-friendly error message
                 alert('Failed to fetch listings. Please refresh the page.');
             } finally {
@@ -203,7 +203,7 @@ export default function ManageListingsTab() {
                 alert('Listing updated successfully!');
 
             } catch (error: any) {
-                console.error('Error updating listing:', error);
+                // console.error('Error updating listing:', error);
 
                 // Show error message
                 const errorMessage = error.response?.data?.message || 'Failed to update listing. Please try again.';
@@ -235,7 +235,7 @@ export default function ManageListingsTab() {
                 alert('Listing deleted successfully!');
 
             } catch (error: any) {
-                console.error('Error deleting listing:', error);
+                // console.error('Error deleting listing:', error);
 
                 // Show error message
                 const errorMessage = error.response?.data?.message || 'Failed to delete listing. Please try again.';

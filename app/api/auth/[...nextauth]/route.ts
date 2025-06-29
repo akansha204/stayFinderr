@@ -20,10 +20,8 @@ export const authOptions: NextAuthOptions = {
                 action: { label: "Action", type: "text" } // 'signin' or 'signup'
             },
             async authorize(credentials, req) {
-                console.log('AUTH: credentials', credentials);
 
                 if (!credentials?.email || !credentials?.password) {
-                    console.log('AUTH: missing fields');
                     throw new Error("Email and password are required");
                 }
 
@@ -74,10 +72,8 @@ export const authOptions: NextAuthOptions = {
                     },
                 });
 
-                console.log('AUTH: found user', user);
 
                 if (!user || !user.password) {
-                    console.log('AUTH: user not found or no password');
                     throw new Error("Invalid credentials");
                 }
 
@@ -86,7 +82,6 @@ export const authOptions: NextAuthOptions = {
                     user.password
                 );
 
-                console.log('AUTH: password valid?', isPasswordValid);
 
                 if (!isPasswordValid) {
                     throw new Error("Invalid credentials");

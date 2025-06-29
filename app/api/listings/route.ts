@@ -24,7 +24,6 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json(listings);
     } catch (error) {
-        console.error("Failed to fetch listings:", error);
         return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -87,7 +86,6 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json(newListing, { status: 201 });
     } catch (error) {
-        console.error("Failed to create listing:", error);
         return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
 }

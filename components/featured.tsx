@@ -28,7 +28,7 @@ export default function Featured() {
                 // Take only first 4 properties
                 setProperties(data.slice(0, 4));
             } catch (error) {
-                console.error('Error fetching properties:', error);
+                // console.error('Error fetching properties:', error);
             } finally {
                 setLoading(false);
             }

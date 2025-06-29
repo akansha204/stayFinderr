@@ -67,23 +67,22 @@ export default function DetailedListing({ listingId }: DetailedListingProps) {
     useEffect(() => {
         const fetchListing = async () => {
             try {
-                console.log('Fetching listing with ID:', listingId); // Debug log
 
                 // First, let's test if we can get all listings
                 const allListingsResponse = await axios.get('/api/listings');
-                console.log('All listings:', allListingsResponse.data); // Debug log
+                // console.log('All listings:', allListingsResponse.data);
 
                 const apiUrl = `/api/listings/${listingId}`;
-                console.log('API URL:', apiUrl); // Debug log
+                // console.log('API URL:', apiUrl); 
                 const response = await axios.get(apiUrl);
-                console.log('Response status:', response.status); // Debug log
-                console.log('Fetched listing data:', response.data); // Debug log
+                // console.log('Response status:', response.status);
+                // console.log('Fetched listing data:', response.data); 
                 setListing(response.data);
             } catch (error) {
-                console.error('Error fetching listing:', error);
+                // console.error('Error fetching listing:', error);
                 if (axios.isAxiosError(error)) {
-                    console.error('API Error Response:', error.response?.data);
-                    console.error('API Error Status:', error.response?.status);
+                    // console.error('API Error Response:', error.response?.data);
+                    // console.error('API Error Status:', error.response?.status);
                 }
             } finally {
                 setLoading(false);
@@ -157,7 +156,7 @@ export default function DetailedListing({ listingId }: DetailedListingProps) {
                                         src={image}
                                         alt={`${listing.title} ${index + 1}`}
                                         fill
-                                        className="object-cover"
+                                        className="object-cover "
                                     />
                                     {index === 3 && listing.images.length > 4 && (
                                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

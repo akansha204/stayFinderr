@@ -51,7 +51,6 @@ export default function SignUpPage({ role: initialRole = 'GUEST', onSignUpSucces
                 setError(result?.error || 'Something went wrong during signup.');
             }
         } catch (error) {
-            console.error('Signup error:', error);
             setError('Something went wrong during signup.');
         }
     }
@@ -66,10 +65,10 @@ export default function SignUpPage({ role: initialRole = 'GUEST', onSignUpSucces
             if (result?.ok && result.url) {
                 handleSuccess();
             } else {
-                console.error("Google sign-in failed or was cancelled", result);
+                // console.error("Google sign-in failed or was cancelled", result);
             }
         } catch (err) {
-            console.error("Google login error:", err);
+            // console.error("Google login error:", err);
         }
     }
 

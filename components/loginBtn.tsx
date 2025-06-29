@@ -40,10 +40,10 @@ export function LoginButton({ onDialogOpen }: LoginButtonProps) {
             if (result?.ok && result.url) {
                 router.push(result.url); // safe redirect
             } else {
-                console.error("Google sign-in failed or was cancelled", result);
+                // console.error("Google sign-in failed or was cancelled", result);
             }
         } catch (err) {
-            console.error("Google login error:", err);
+            // console.error("Google login error:", err);
             setError('An error occurred during Google sign-in.');
         }
     }

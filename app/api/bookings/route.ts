@@ -36,7 +36,6 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json(bookings);
     } catch (error) {
-        console.error("Failed to fetch bookings:", error);
         return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
 }

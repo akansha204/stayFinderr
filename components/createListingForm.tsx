@@ -18,6 +18,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { MyUploadButton } from "./uploadButton";
 
 const amenitiesList = [
     "Wifi",
@@ -51,31 +52,28 @@ export default function CreateListingForm() {
 
     const { data: session } = useSession();
 
-    // Simple HTML file input handler - works perfectly on mobile
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (!files) return;
+    // Debug image state changes
+    useEffect(() => {
+    }, [form.images]);
 
-        setUploading(true);
-
-        // Convert files to base64 or upload to your preferred service
-        Array.from(files).forEach((file) => {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const imageUrl = event.target?.result as string;
-                    setForm((prev) => ({
-                        ...prev,
-                        images: [...prev.images, imageUrl],
-                    }));
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
+    const handleUploadComplete = (urls: string[]) => {
+        // console.log("Upload complete! URLs received:", urls);
+        setForm((prev) => ({
+            ...prev,
+            images: [...prev.images, ...urls],
+        }));
         setUploading(false);
-        // Reset input
-        e.target.value = '';
+    };
+
+    const handleUploadStart = () => {
+        setUploading(true);
+    };
+
+    const handleUploadError = (error: Error) => {
+        // console.error("Upload error:", error);
+        setErrorMessage(`Image upload failed: ${error.message}`);
+        setShowErrorDialog(true);
+        setUploading(false);
     };
 
     const handleChange = (
@@ -118,7 +116,7 @@ export default function CreateListingForm() {
         }
 
         if (form.images.length === 0) {
-            errors.push("At least one property image is required");
+            errors.push("Please upload at least one property image before creating the listing");
         }
 
         if (form.amenities.length === 0) {
@@ -135,7 +133,7 @@ export default function CreateListingForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate form before submission
+        // Validate form first
         const validationErrors = validateForm();
         if (validationErrors.length > 0) {
             setErrorMessage(validationErrors.join("\n• "));
@@ -143,6 +141,13 @@ export default function CreateListingForm() {
             return;
         }
 
+        setUploading(true);
+
+        // Submit the listing with uploaded image URLs
+        await submitFormData(form.images);
+    };
+
+    const submitFormData = async (imageUrls: string[]) => {
         // Update form.availability from dateRange if needed
         let availability = form.availability;
         if (dateRange && dateRange.from && dateRange.to) {
@@ -155,13 +160,14 @@ export default function CreateListingForm() {
             }
             availability = dates;
         }
+
         try {
             const res = await axios.post("/api/listings", {
                 title: form.title,
                 description: form.description,
                 location: form.location,
                 pricePerNight: parseFloat(form.price),
-                images: form.images, // array of Cloudinary image URLs
+                images: imageUrls, // Use the provided image URLs
                 amenities: form.amenities, // array of strings
                 houseRules: form.houseRules,
                 availability, // array of Date
@@ -192,7 +198,7 @@ export default function CreateListingForm() {
             });
             setDateRange(undefined);
         } catch (err: any) {
-            console.error("Failed to submit listing:", err.response?.data?.message || err.message);
+            // console.error("Failed to submit listing:", err.response?.data?.message || err.message);
 
             // Handle backend errors with user-friendly messages
             let backendErrorMessage = "Failed to create listing. Please try again.";
@@ -217,14 +223,8 @@ export default function CreateListingForm() {
 
             setErrorMessage(backendErrorMessage);
             setShowErrorDialog(true);
-        }
-    };
-
-    // Trigger file input click - much simpler and mobile-friendly
-    const openUploadWidget = () => {
-        const fileInput = document.getElementById('image-upload') as HTMLInputElement;
-        if (fileInput) {
-            fileInput.click();
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -370,49 +370,63 @@ export default function CreateListingForm() {
                         </div>
                     </div>
 
-                    <label className="font-medium mt-2 sm:mt-4 text-sm sm:text-base">Images</label>
-                    <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 sm:p-6 text-center bg-gray-50 mb-2">
-                        <div className="font-semibold mb-2 text-sm sm:text-base">Upload Images</div>
-                        <div className="text-xs sm:text-sm text-gray-500 mb-3">Click to select images from your device</div>
+                    <label className="font-medium mt-2 sm:mt-4 text-sm sm:text-base">Property Images</label>
 
-                        {/* Hidden file input */}
-                        <input
-                            id="image-upload"
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="hidden"
+                    <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 sm:p-6 text-center bg-gray-50 mb-2">
+                        <div className="font-semibold mb-2 text-sm sm:text-base">Upload Property Images</div>
+                        <div className="text-xs sm:text-sm text-gray-500 mb-3">
+                            Please upload your images first before creating the listing. You can upload multiple images at once.
+                        </div>
+
+                        <MyUploadButton
+                            multiple={true}
+                            onUploadComplete={handleUploadComplete}
+                            onUploadStart={handleUploadStart}
+                            onUploadError={handleUploadError}
+                            disabled={uploading}
+                            className="mb-4"
                         />
 
-                        <Button
-                            type="button"
-                            onClick={openUploadWidget}
-                            disabled={uploading}
-                            className="bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-semibold rounded-md text-sm sm:text-base px-4 py-2 sm:px-6 sm:py-2 flex items-center gap-2 mx-auto"
-                        >
-                            <Upload size={16} />
-                            {uploading ? 'Uploading...' : 'Choose Images'}
-                        </Button>
-                        <div className="flex flex-wrap gap-2 mt-4 justify-center">
-                            {form.images.map((url, idx) => (
-                                <div key={idx} className="relative w-16 h-16 sm:w-20 sm:h-20">
-                                    <img
-                                        src={url}
-                                        alt={`Uploaded ${idx}`}
-                                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveImage(idx)}
-                                        className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-white rounded-full shadow p-0.5 hover:bg-red-100 transition-colors"
-                                        aria-label="Remove image"
-                                    >
-                                        <X size={14} className="sm:w-4 sm:h-4 text-gray-600 hover:text-red-500" />
-                                    </button>
+                        {/* Display uploaded images */}
+                        {form.images.length > 0 && (
+                            <div className="mt-6">
+                                <div className="text-sm font-medium text-green-600 mb-2">
+                                    ✓ Successfully uploaded {form.images.length} image{form.images.length > 1 ? 's' : ''}:
                                 </div>
-                            ))}
-                        </div>
+                                <div className="flex flex-wrap gap-2 justify-center">
+                                    {form.images.map((url, idx) => (
+                                        <div key={idx} className="relative w-16 h-16 sm:w-20 sm:h-20 border-2 border-green-200 rounded-md overflow-hidden">
+                                            <img
+                                                src={url}
+                                                alt={`Uploaded ${idx + 1}`}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    // console.error("Image failed to load:", url);
+                                                    e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIxIDNIMTBMMTkgMjFIMjFWM1oiIGZpbGw9IiNmNWY1ZjUiLz4KPHBhdGggZD0iTTMgM1YyMUgxOUwzIDNaIiBmaWxsPSIjZGRkZGRkIi8+Cjx0ZXh0IHg9IjEyIiB5PSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjOTk5OTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5JbWFnZTwvdGV4dD4KPC9zdmc+";
+                                                }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveImage(idx)}
+                                                className="absolute -top-1 -right-1 bg-white rounded-full shadow p-0.5 hover:bg-red-100 transition-colors"
+                                                aria-label="Remove uploaded image"
+                                            >
+                                                <X size={14} className="sm:w-4 sm:h-4 text-gray-600 hover:text-red-500" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Show reminder if no images uploaded */}
+                        {form.images.length === 0 && (
+                            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                                <div className="text-sm text-yellow-800">
+                                    <strong>⚠️ Remember:</strong> You need to upload at least one image before you can create your listing.
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Availability Calendar - placed below images */}
@@ -452,9 +466,10 @@ export default function CreateListingForm() {
                 <div className="lg:col-span-2 flex flex-col sm:flex-row justify-center sm:justify-end gap-3 sm:gap-4 mt-6 sm:mt-8">
                     <Button
                         type="submit"
-                        className="w-full sm:w-auto min-w-[140px] sm:min-w-[160px] font-semibold rounded-lg bg-orange-500 hover:bg-orange-600 text-white py-2.5 sm:py-3 px-6 sm:px-8 text-sm sm:text-base transition-colors duration-200"
+                        disabled={uploading}
+                        className="w-full sm:w-auto min-w-[140px] sm:min-w-[160px] font-semibold rounded-lg bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 px-6 sm:px-8 text-sm sm:text-base transition-colors duration-200"
                     >
-                        Create Listing
+                        {uploading ? "Creating Listing..." : "Create Listing"}
                     </Button>
                 </div>
             </form>

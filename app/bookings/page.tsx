@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { FullPageLoading } from '@/components/LoadingSpinner';
 import { Calendar, MapPin, User, DollarSign, Clock } from 'lucide-react';
 
 interface BookingData {
@@ -96,29 +97,7 @@ export default function BookingsPage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-[#FFF8F2]">
-                <div className="max-w-6xl mx-auto px-4">
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-                        <p className="text-gray-600 mt-2">View and manage your travel reservations</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[...Array(6)].map((_, i) => (
-                            <div key={i} className="bg-white rounded-xl shadow-sm border animate-pulse">
-                                <div className="h-48 bg-gray-300 rounded-t-xl"></div>
-                                <div className="p-6 space-y-4">
-                                    <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                                    <div className="h-3 bg-gray-300 rounded w-1/2"></div>
-                                    <div className="h-3 bg-gray-300 rounded w-2/3"></div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
+        return <FullPageLoading text="Loading your bookings..." />;
     }
 
     if (error) {

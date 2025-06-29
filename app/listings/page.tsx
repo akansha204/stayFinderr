@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PropertyCard from '@/components/PropertyCard';
 import SearchComponent from '@/components/SearchComponent';
+import { FullPageLoading } from '@/components/LoadingSpinner';
 import { useSearchParams } from 'next/navigation';
 
 interface Listing {
@@ -76,7 +77,6 @@ function ListingsPage() {
             try {
                 setLoading(true);
                 const response = await axios.get('/api/listings');
-                console.log('Fetched listings:', response.data);
                 setListings(response.data);
 
                 // Apply initial filters from URL parameters
@@ -84,10 +84,7 @@ function ListingsPage() {
                 const filtered = applyFilters(response.data, urlSearchParams);
                 setFilteredListings(filtered);
 
-                console.log('URL search params:', urlSearchParams);
-                console.log('Initial filtered results:', filtered);
             } catch (error) {
-                console.error('Error fetching listings:', error);
                 setError('Failed to fetch listings');
             } finally {
                 setLoading(false);
@@ -101,24 +98,25 @@ function ListingsPage() {
     const handleSearch = (searchParams: SearchParams) => {
         const filtered = applyFilters(listings, searchParams);
         setFilteredListings(filtered);
-        console.log('Search applied:', searchParams);
-        console.log('Filtered results:', filtered);
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-[#FFF8F2] flex justify-center items-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-orange"></div>
-            </div>
-        );
+        return <FullPageLoading text="Finding amazing places for you..." />;
     }
 
     if (error) {
         return (
             <div className="min-h-screen bg-[#FFF8F2] flex justify-center items-center">
-                <div className="text-center">
-                    <h2 className="text-2xl font-semibold text-gray-600 mb-2">Error Loading Listings</h2>
-                    <p className="text-gray-500">{error}</p>
+                <div className="text-center bg-white rounded-lg shadow-lg p-8">
+                    <div className="text-red-500 text-6xl mb-4">⚠️</div>
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-2">Oops! Something went wrong</h2>
+                    <p className="text-gray-600 mb-4">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                    >
+                        Try Again
+                    </button>
                 </div>
             </div>
         );

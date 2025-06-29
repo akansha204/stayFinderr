@@ -11,7 +11,7 @@ export default function Hero() {
     const router = useRouter();
 
     const handleSearch = (searchParams: any) => {
-        console.log('Hero search:', searchParams);
+        // console.log('Hero search:', searchParams);
 
         // Create URL search parameters
         const params = new URLSearchParams();
