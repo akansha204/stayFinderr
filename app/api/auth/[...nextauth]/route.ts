@@ -102,7 +102,35 @@ const authOptions = {
         strategy: "jwt" as const,
     },
     callbacks: {
-        async signIn() {
+        async signIn({ user, account }: any) {
+            if (account?.provider === "google") {
+                // Check if user with this email already exists
+                const existingUser = await prisma.user.findUnique({
+                    where: { email: user.email! }
+                });
+
+                if (existingUser) {
+                    // If user exists, link the Google account to the existing user
+                    // This allows users to sign in with either email/password OR Google
+                    return true;
+                }
+
+                // If user doesn't exist, create a new user
+                try {
+                    await prisma.user.create({
+                        data: {
+                            name: user.name!,
+                            email: user.email!,
+                            image: user.image,
+                            role: 'GUEST', // Default role for Google sign-ups
+                        }
+                    });
+                    return true;
+                } catch (error) {
+                    console.error("Error creating user:", error);
+                    return false;
+                }
+            }
             return true;
         },
         async jwt({ token, user }: any) {
