@@ -6,24 +6,16 @@ import { FcGoogle } from 'react-icons/fc'// Google icon
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
-type SignUpPageProps = {
-    role?: string;
-    onSignUpSuccess?: () => void;
-};
-
-export default function SignUpPage({ role: initialRole = 'GUEST', onSignUpSuccess }: SignUpPageProps) {
+export default function SignUpPage() {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [phone, setPhone] = useState('') // <-- Add phone state
     const [error, setError] = useState('')
-    const [role, setRole] = useState(initialRole)
+    const [role, setRole] = useState('GUEST')
     const router = useRouter();
 
     const handleSuccess = () => {
-        if (onSignUpSuccess) {
-            onSignUpSuccess();
-        }
         // Small delay to ensure the dialog closes before navigation
         setTimeout(() => {
             router.push('/');

@@ -1,12 +1,19 @@
-import NextAuth, { NextAuthOptions } from "next-auth"
+import NextAuth, { NextAuthOptions, User } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from '@/lib/prisma'
 import bcrypt from "bcryptjs";
 import { Role } from '@prisma/client';
+import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
 
-export const authOptions: NextAuthOptions = {
+interface ExtendedUser {
+    id: string;
+    role: Role;
+}
+
+const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
@@ -105,15 +112,15 @@ export const authOptions: NextAuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
-        async signIn({ profile }) {
+        async signIn() {
             // Let the PrismaAdapter handle everything automatically
             return true;
         },
-        async jwt({ token, user }: { token: any; user: any }) {
+        async jwt({ token, user }: { token: JWT; user: User & { role?: Role } }) {
             if (user) {
                 // For new sign-ins, user object will have the database user info
                 token.id = user.id;
-                token.role = (user as any).role || 'GUEST';
+                token.role = user.role || 'GUEST';
             } else if (token.email && !token.id) {
                 // Fallback: fetch user data if not in token yet
                 const dbUser = await prisma.user.findUnique({
@@ -126,11 +133,11 @@ export const authOptions: NextAuthOptions = {
             }
             return token;
         },
-        async session({ session, token }: { session: any; token: any }) {
-            const s = session as any;
-            if (s.user) {
-                if (token.id) s.user.id = token.id as string;
-                if (token.role) s.user.role = token.role as Role;
+        async session({ session, token }: { session: Session; token: JWT & { id?: string; role?: Role } }) {
+            if (session.user) {
+                const extendedUser = session.user as Session['user'] & ExtendedUser;
+                if (token.id) extendedUser.id = token.id;
+                if (token.role) extendedUser.role = token.role;
             }
             return session;
         },
