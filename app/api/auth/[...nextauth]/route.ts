@@ -103,34 +103,17 @@ const authOptions = {
     },
     callbacks: {
         async signIn({ user, account }: any) {
-            if (account?.provider === "google") {
-                // Check if user with this email already exists
-                const existingUser = await prisma.user.findUnique({
-                    where: { email: user.email! }
-                });
-
-                if (existingUser) {
-                    // If user exists, link the Google account to the existing user
-                    // This allows users to sign in with either email/password OR Google
-                    return true;
-                }
-
-                // If user doesn't exist, create a new user
-                try {
-                    await prisma.user.create({
-                        data: {
-                            name: user.name!,
-                            email: user.email!,
-                            image: user.image,
-                            role: 'GUEST', // Default role for Google sign-ups
-                        }
-                    });
-                    return true;
-                } catch (error) {
-                    console.error("Error creating user:", error);
-                    return false;
-                }
+            // For credentials provider, let it handle normally
+            if (account?.provider === "credentials") {
+                return true;
             }
+
+            // For Google OAuth, let PrismaAdapter handle everything automatically
+            if (account?.provider === "google") {
+                console.log(`🔍 Google OAuth sign-in for: ${user.email}`);
+                return true; // Let PrismaAdapter handle user creation and account linking
+            }
+
             return true;
         },
         async jwt({ token, user }: any) {
@@ -144,6 +127,15 @@ const authOptions = {
                 if (dbUser) {
                     token.id = dbUser.id;
                     token.role = dbUser.role;
+
+                    // Set default role for Google users who don't have a role set
+                    if (!dbUser.role) {
+                        await prisma.user.update({
+                            where: { id: dbUser.id },
+                            data: { role: 'GUEST' }
+                        });
+                        token.role = 'GUEST';
+                    }
                 }
             }
             return token;
