@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export default function SignIn() {
+function SignInContent() {
     const searchParams = useSearchParams();
     const error = searchParams.get('error');
     const [providers, setProviders] = useState<any>(null);
@@ -69,4 +69,8 @@ export default function SignIn() {
             </div>
         </div>
     );
+}
+
+export default function SignIn() {
+    return <SignInContent />;
 }

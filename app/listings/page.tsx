@@ -32,10 +32,18 @@ function ListingsPage() {
     const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [mounted, setMounted] = useState(false);
     const searchParams = useSearchParams();
 
-    // Parse URL search parameters
+    // Ensure component is mounted before using search params
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Parse URL search parameters (only after component is mounted)
     const getSearchParamsFromUrl = () => {
+        if (!mounted) return { location: '', checkInDate: undefined, checkOutDate: undefined, adults: 1, children: 0, rooms: 1 };
+
         const location = searchParams.get('location') || '';
         const checkInDate = searchParams.get('checkInDate') ? new Date(searchParams.get('checkInDate')!) : undefined;
         const checkOutDate = searchParams.get('checkOutDate') ? new Date(searchParams.get('checkOutDate')!) : undefined;
@@ -73,6 +81,8 @@ function ListingsPage() {
 
     // Fetch all listings on component mount
     useEffect(() => {
+        if (!mounted) return; // Don't fetch until component is mounted
+
         const fetchListings = async () => {
             try {
                 setLoading(true);
@@ -92,7 +102,7 @@ function ListingsPage() {
         };
 
         fetchListings();
-    }, [searchParams]); // Re-run when URL search params change
+    }, [mounted, searchParams]); // Re-run when mounted state or URL search params change
 
     // Handle search functionality
     const handleSearch = (searchParams: SearchParams) => {

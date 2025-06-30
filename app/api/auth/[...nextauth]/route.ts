@@ -1,19 +1,12 @@
-import NextAuth, { NextAuthOptions, User } from "next-auth"
+import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from '@/lib/prisma'
 import bcrypt from "bcryptjs";
 import { Role } from '@prisma/client';
-import { JWT } from "next-auth/jwt";
-import { Session } from "next-auth";
 
-interface ExtendedUser {
-    id: string;
-    role: Role;
-}
-
-const authOptions: NextAuthOptions = {
+const authOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
@@ -25,8 +18,7 @@ const authOptions: NextAuthOptions = {
                 role: { label: "Role", type: "text", optional: true },
                 action: { label: "Action", type: "text" } // 'signin' or 'signup'
             },
-            async authorize(credentials) {
-
+            async authorize(credentials: any) {
                 if (!credentials?.email || !credentials?.password) {
                     throw new Error("Email and password are required");
                 }
@@ -78,7 +70,6 @@ const authOptions: NextAuthOptions = {
                     },
                 });
 
-
                 if (!user || !user.password) {
                     throw new Error("Invalid credentials");
                 }
@@ -87,7 +78,6 @@ const authOptions: NextAuthOptions = {
                     credentials.password,
                     user.password
                 );
-
 
                 if (!isPasswordValid) {
                     throw new Error("Invalid credentials");
@@ -109,20 +99,17 @@ const authOptions: NextAuthOptions = {
         })
     ],
     session: {
-        strategy: "jwt",
+        strategy: "jwt" as const,
     },
     callbacks: {
         async signIn() {
-            // Let the PrismaAdapter handle everything automatically
             return true;
         },
-        async jwt({ token, user }: { token: JWT; user: User & { role?: Role } }) {
+        async jwt({ token, user }: any) {
             if (user) {
-                // For new sign-ins, user object will have the database user info
                 token.id = user.id;
                 token.role = user.role || 'GUEST';
             } else if (token.email && !token.id) {
-                // Fallback: fetch user data if not in token yet
                 const dbUser = await prisma.user.findUnique({
                     where: { email: token.email },
                 });
@@ -133,11 +120,10 @@ const authOptions: NextAuthOptions = {
             }
             return token;
         },
-        async session({ session, token }: { session: Session; token: JWT & { id?: string; role?: Role } }) {
+        async session({ session, token }: any) {
             if (session.user) {
-                const extendedUser = session.user as Session['user'] & ExtendedUser;
-                if (token.id) extendedUser.id = token.id;
-                if (token.role) extendedUser.role = token.role;
+                if (token.id) session.user.id = token.id;
+                if (token.role) session.user.role = token.role;
             }
             return session;
         },

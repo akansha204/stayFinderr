@@ -3,7 +3,6 @@
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Suspense } from 'react';
 
 function AuthErrorContent() {
     const searchParams = useSearchParams();
@@ -70,9 +69,5 @@ function AuthErrorContent() {
 }
 
 export default function AuthError() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <AuthErrorContent />
-        </Suspense>
-    );
+    return <AuthErrorContent />;
 }
