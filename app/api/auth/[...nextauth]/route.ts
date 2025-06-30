@@ -4,7 +4,6 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from '@/lib/prisma'
 import bcrypt from "bcryptjs";
-import { v4 as uuidv4 } from 'uuid';
 import { Role } from '@prisma/client';
 
 export const authOptions: NextAuthOptions = {
@@ -19,7 +18,7 @@ export const authOptions: NextAuthOptions = {
                 role: { label: "Role", type: "text", optional: true },
                 action: { label: "Action", type: "text" } // 'signin' or 'signup'
             },
-            async authorize(credentials, req) {
+            async authorize(credentials) {
 
                 if (!credentials?.email || !credentials?.password) {
                     throw new Error("Email and password are required");
@@ -106,11 +105,11 @@ export const authOptions: NextAuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
-        async signIn({ user, account, profile }) {
+        async signIn({ profile }) {
             // Let the PrismaAdapter handle everything automatically
             return true;
         },
-        async jwt({ token, user }) {
+        async jwt({ token, user }: { token: any; user: any }) {
             if (user) {
                 // For new sign-ins, user object will have the database user info
                 token.id = user.id;
@@ -127,7 +126,7 @@ export const authOptions: NextAuthOptions = {
             }
             return token;
         },
-        async session({ session, token }) {
+        async session({ session, token }: { session: any; token: any }) {
             const s = session as any;
             if (s.user) {
                 if (token.id) s.user.id = token.id as string;

@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { Calendar } from "@/components/ui/calendar"
 import type { DateRange } from "react-day-picker";
-import { X, CheckCircle, Upload } from "lucide-react";
+import { X, CheckCircle } from "lucide-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import {

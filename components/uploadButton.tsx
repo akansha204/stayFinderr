@@ -93,8 +93,8 @@ export function MyUploadButton({
 
         try {
             // Use startUpload from useUploadThing hook
-            const result = await startUpload(selectedFiles);
-            // console.log("startUpload result:", result);
+            await startUpload(selectedFiles);
+            // console.log("startUpload completed");
 
             // Clear selected files after successful upload
             previewUrls.forEach(url => URL.revokeObjectURL(url));
