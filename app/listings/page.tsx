@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
 import PropertyCard from '@/components/PropertyCard';
 import SearchComponent from '@/components/SearchComponent';
@@ -186,4 +186,11 @@ function ListingsPage() {
     );
 }
 
-export default ListingsPage;
+// Wrap with Suspense but use your custom loading as fallback
+export default function ListingsPageWithSuspense() {
+    return (
+        <Suspense fallback={<FullPageLoading text="Finding amazing places for you..." />}>
+            <ListingsPage />
+        </Suspense>
+    );
+}
